@@ -12,7 +12,6 @@ async function requestBackend<T>(path: string, init?: RequestInit): Promise<T> {
       'Content-Type': 'application/json',
       ...(init?.headers ?? {}),
     },
-    cache: 'no-store',
   });
 
   if (!response.ok) {
@@ -33,25 +32,38 @@ async function requestBackend<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const getServices = cache(async (): Promise<ServiceItem[]> => {
-  return requestBackend<ServiceItem[]>('/services', { method: 'GET' });
+  return requestBackend<ServiceItem[]>('/services', {
+    method: 'GET',
+    next: { revalidate: 15 },
+  });
 });
 
 export const getServiceById = cache(async (id: string): Promise<ServiceItem> => {
-  return requestBackend<ServiceItem>(`/services/${id}`, { method: 'GET' });
+  return requestBackend<ServiceItem>(`/services/${id}`, {
+    method: 'GET',
+    next: { revalidate: 15 },
+  });
 });
 
 export const getBookings = cache(async (): Promise<BookingItem[]> => {
-  return requestBackend<BookingItem[]>('/bookings', { method: 'GET' });
+  return requestBackend<BookingItem[]>('/bookings', {
+    method: 'GET',
+    next: { revalidate: 15 },
+  });
 });
 
 export const getBookingById = cache(async (id: string): Promise<BookingItem> => {
-  return requestBackend<BookingItem>(`/bookings/${id}`, { method: 'GET' });
+  return requestBackend<BookingItem>(`/bookings/${id}`, {
+    method: 'GET',
+    next: { revalidate: 15 },
+  });
 });
 
 export async function createService(payload: Omit<ServiceItem, 'id' | 'createdAt' | 'updatedAt'>) {
   return requestBackend<ServiceItem>('/services', {
     method: 'POST',
     body: JSON.stringify(payload),
+    cache: 'no-store',
   });
 }
 
@@ -59,17 +71,20 @@ export async function updateService(id: string, payload: Partial<Omit<ServiceIte
   return requestBackend<ServiceItem>(`/services/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(payload),
+    cache: 'no-store',
   });
 }
 
 export async function deleteService(id: string) {
   return requestBackend<void>(`/services/${id}`, {
     method: 'DELETE',
+    cache: 'no-store',
   });
 }
 
 export async function deleteBooking(id: string) {
   return requestBackend<void>(`/bookings/${id}`, {
     method: 'DELETE',
+    cache: 'no-store',
   });
 }
